@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH --nodes 1
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=4
+#SBATCH --time 03:00:00
+#SBATCH --mem=16G
+#SBATCH -J part_1
+#SBATCH --output=/home/skorokho/coding/slurm_output/slurm-%j-%x.out
+
+SCENES=(outdoor_1.blend outdoor_2.blend outdoor_3.blend)
+
+start=$1
+end=$2
+echo "indoor ${start} ${end}"
+
+cd /home/skorokho/blender/blender-4.2.1-linux-x64
+for((i=$start; i<$end; i++))
+do
+    scene=${SCENES[i]}
+    scene_name=${scene%.blend}
+    render_script="render_${scene_name}.py"
+    echo $scene
+    srun --ntasks=1 ./blender -b /home/skorokho/data/my_blend_2/$scene --python /home/skorokho/coding/voi_gs/render_dataset/$render_script
+done

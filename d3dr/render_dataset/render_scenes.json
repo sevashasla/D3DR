@@ -1,0 +1,193 @@
+{
+    "out_root": "/scratch/izar/skorokho/blender_attmpt_5/",
+    "important_logs_path": "/home/skorokho/coding/voi_gs/logs/important_render_logs.txt",
+    "scenes": [
+        {
+            "name": "bathroom_1.blend",
+            "result_end": "bathroom_1",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 2,
+            "num_lights_faces": 0,
+
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/bathroom_1/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.25, 0.1],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+            "num_steps": 1024,
+
+            "radius_obj_mult_for_camera": 3.0
+        }, 
+        {
+            "name": "bathroom_2.blend",
+            "result_end": "bathroom_2",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 2,
+            "num_lights_faces": 3,
+
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/bathroom_2/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.4, 0.1],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+            "radius_obj_mult_for_camera": 3.0
+        },
+        {
+            "name": "bedroom_1.blend",
+            "result_end": "bedroom_1",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 2,
+            "num_lights_faces": 3,
+
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/bedroom_1/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.3, 0.1],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+
+            "radius_obj_mult_for_camera": 3.0
+        },
+        {
+            "name": "bedroom_2.blend",
+            "result_end": "bedroom_2",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 2,
+            "num_lights_faces": 6,
+            
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/bedroom_2/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.3, 0.2],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+    
+            "radius_obj_mult_for_camera": 3.0,
+            "corner_light_multiplier": 2.0
+        },
+        {
+            "name": "kitchen_1.blend",
+            "result_end": "kitchen_1",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 2,
+            "num_lights_faces": 3,
+                
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/kitchen_1/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.3, 0.2],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+            
+            "radius_obj_mult_for_camera": 3.0,
+            "corner_light_multiplier": 5.0
+        },
+        {
+            "name": "kitchen_2.blend",
+            "result_end": "kitchen_2",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 1,
+            "num_lights_faces": 1,
+            
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/kitchen_2/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.2, 0.1],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+            
+            "radius_obj_mult_for_camera": 5.0,
+            "corner_light_multiplier": 10.0
+        },
+        {
+            "name": "living_room_1.blend",
+            "result_end": "living_room_1",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 2,
+            "num_lights_faces": 6,
+    
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/living_room_1/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.5, 0.2],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+    
+            "radius_obj_mult_for_camera": 2.0,
+            "range_lights": [20, 40]
+        },
+        {
+            "name": "living_room_2.blend",
+            "result_end": "living_room_2",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 2,
+            "num_lights_faces": 6,
+    
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/living_room_2/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.6, 0.2],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+    
+            "radius_obj_mult_for_camera": 2.0,
+            "range_lights": [100, 100]
+        },
+        {
+            "name": "office_1.blend",
+            "result_end": "office_1",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 2,
+            "num_lights_faces": 4,
+    
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/office_1/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.3, 0.2],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+    
+            "radius_obj_mult_for_camera": 2.0,
+            "range_lights": [70, 80]
+        },
+        {
+            "name": "office_2.blend",
+            "result_end": "office_2",
+            "type": "indoor",
+            "num_views": 250,
+            "num_lights": 2,
+            "num_lights_faces": 4,
+    
+            "path_poses": "/scratch/izar/skorokho/blender_attmpt_3/office_2/",
+            "generate_path_of": ["obj_scene_eval"],
+            "betas": [0.3, 0.2],
+            "do_render_eval": true,
+            "do_render_scene": false,
+            "do_render_obj_scene": false,
+            "do_render_obj": false,
+        
+            "radius_obj_mult_for_camera": 2.0,
+            "range_lights": [50, 60]
+        }
+    ]
+}

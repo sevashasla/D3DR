@@ -1,0 +1,161 @@
+{
+    "bathroom_1": {
+        "init_obj_path": "/scratch/izar/skorokho/output_processed_3/bathroom_1-obj-2/dn-splatter/2024-12-22_164339/",
+        "obj_desc": "caution wet floor sign",
+        "ic_light_prompt": "a yellow plastic sign",
+        "scene_desc": "bathroom"
+    },
+    "bathroom_2": {
+        "init_scene_path": "/scratch/izar/skorokho/output_processed_3/bathroom_2-scene-2/dn-splatter/2025-04-17_015132/",
+        "obj_desc": "laundry basket",
+        "scene_desc": "bathroom",
+        "ic_light_prompt": "a brown wooden laundry basket",
+        "betas_str": "0.1 0.4"
+    },
+    "bedroom_1": {
+        "obj_desc": "pillow",
+        "scene_desc": "bedroom",
+        "ic_light_prompt": "a pillow",
+        "prompt_initial": "a bedroom",
+        "prompt_desired": "a <rare_token> pillow on a bed in a bedroom",
+        "betas_str": "0.1 0.3",
+        "betas_str_generation": "0.5 0.6"
+    },
+    "bedroom_2": {
+        "obj_desc": "vase",
+        "scene_desc": "bedroom",
+        "ic_light_prompt": "a vase",
+        "betas_str": "0.04 0.3",
+        "max_num_iterations_voi": 4000,
+        "refine_after": 2000
+    },
+    "kitchen_1": {
+        "obj_desc": "a leather suitcase",
+        "scene_desc": "room",
+        "ic_light_prompt": "a gray+green leather suitcase",
+        "prompt_initial": "a sofa",
+        "prompt_desired": "a <rare_token> leather suitcase on a sofa",
+        "betas_str": "0.04 0.3",
+        "refine_after": 2000
+    },
+    "kitchen_2": {
+        "init_scene_path": "/scratch/izar/skorokho/output_processed_3/kitchen_2-scene_eval/dn-splatter/2025-05-10_174521/",
+        "obj_desc": "cup",
+        "scene_desc": "kitchen",
+        "ic_light_prompt": "a cup",
+        "prompt_initial": "a table",
+        "prompt_desired": "a <rare_token> cup on a table",
+        "betas_str": "0.04 0.3",
+        "betas_str_generation": "0.5 0.6",
+        "use_min_for_generation": 1,
+        "refine_after": 2000
+    },
+    "living_room_1": {
+        "obj_desc": "single-color parrot statue",
+        "scene_desc": "living room",
+        "ic_light_prompt": "a single-color polygonal parrot statue",
+        "betas_str_generation": "0.7 0.9",
+        "betas_str": "0.04 0.3"
+    },
+    "living_room_2": {
+        "obj_desc": "piano",
+        "scene_desc": "living room",
+        "ic_light_prompt": "an upright piano, dark polished wood",
+        "betas_str": "0.1 0.6",
+        "max_num_iterations_voi": 4000,
+        "refine_after": 2000
+    },
+    "office_1": {
+        "obj_desc": "office chair",
+        "scene_desc": "office",
+        "ic_light_prompt": "a office chair",
+        "max_num_iterations_voi": 4000,
+        "refine_after": 2000
+    },
+    "office_2": {
+        "obj_desc": "dumbbell",
+        "scene_desc": "office",
+        "ic_light_prompt": "a dumbbell",
+        "prompt_initial": "a table in a office",
+        "prompt_desired": "a <rare_token> dumbbell on a table in a office",
+        "betas_str_generation": "0.5 0.6",
+        "max_num_iterations_voi": 4000,
+        "refine_after": 2000
+    },
+
+    "dark_to_light": {
+        "init_scene_path": "/scratch/izar/skorokho/data/toster2/splat_light_notoster/ns_processed_light_notoster/splatfacto/2025-08-13_220402/",
+        "init_obj_path": "/scratch/izar/skorokho/data/toster2/splat_dark_toster/ns_processed_dark_toster/splatfacto/2025-08-13_214741/",
+        "obj_desc": "toaster",
+        "scene_desc": "kitchen",
+        "ic_light_prompt": "a plastic toaster",
+        "prompt_initial": "a table",
+        "prompt_desired": "a <rare_token> toaster on a table",
+        "betas_str": "0.1 0.5",
+        "betas_str_generation": "0.4 0.7",
+        "use_min_for_generation": -1,
+        "angles_z_str": "15 60",
+        "transforms_obj": "/scratch/izar/skorokho/data/toster2/dark_to_light/obj_scene/",
+        "fixed_place_prompt": "indoor",
+        "dataset_root": "/scratch/izar/skorokho/data/toster2",
+        "output_dataset_root": "/scratch/izar/skorokho/data/toster2"
+    },
+    "ns_processed_fabric_bin_in_corridor": {
+        "init_scene_path": "/scratch/izar/skorokho/data/recordings_09082025/splat_corridor/ns_processed_corridor/splatfacto/2025-08-12_001325/",
+        "init_obj_path": "/scratch/izar/skorokho/data/recordings_09082025/splat_fabric_bin_living_room/ns_processed_fabric_bin_living_room/splatfacto/2025-08-12_000702/",
+        "obj_desc": "fabric bin",
+        "scene_desc": "corridor",
+        "ic_light_prompt": "a fabric bin",
+        "prompt_initial": "a corridor",
+        "prompt_desired": "a <rare_token> fabric bin in a corridor",
+        "betas_str": "0.1 0.3",
+        "angles_z_str": "30 80",
+        "betas_str_generation": "0.1 0.2",
+        "use_min_for_generation": 1,
+        "transforms_obj": "/scratch/izar/skorokho/data/recordings_09082025/ns_processed_fabric_bin_in_corridor/obj_scene",
+        "max_num_iterations_voi": 4000,
+        "refine_after": 2000,
+        "fixed_place_prompt": "indoor",
+        "dataset_root": "/scratch/izar/skorokho/data/recordings_09082025",
+        "output_dataset_root": "/scratch/izar/skorokho/data/recordings_09082025"
+    },
+    "ns_processed_chair_in_living_room": {
+        "init_scene_path": "/scratch/izar/skorokho/data/recordings_09082025/splat_living_room/ns_processed_living_room/splatfacto/2025-08-12_001156/",
+        "init_obj_path": "/scratch/izar/skorokho/data/recordings_09082025/splat_chair_my_room/ns_processed_chair_my_room/splatfacto/2025-08-12_000834/",
+        "obj_desc": "chair",
+        "scene_desc": "table in a living room",
+        "ic_light_prompt": "a green chair",
+        "prompt_initial": "a table in a living room",
+        "prompt_desired": "a <rare_token> chair behind a table in a living room",
+        "betas_str": "0.3 0.4",
+        "use_min_for_generation": 0,
+        "betas_str_generation": "0.5 0.6",
+        "angles_z_str": "20 50",
+        "transforms_obj": "/scratch/izar/skorokho/data/recordings_09082025/ns_processed_chair_in_living_room/obj_scene",
+        "optimize_image_for": 128,
+        "optimize_latent_for": 32,
+        "fixed_place_prompt": "indoor",
+        "dataset_root": "/scratch/izar/skorokho/data/recordings_09082025",
+        "output_dataset_root": "/scratch/izar/skorokho/data/recordings_09082025"
+    },
+    "francis_bicycle": {
+        "init_scene_path": "/scratch/izar/skorokho/data/francis_bicycle/francis_bicycle-scene_eval/scene_eval/splatfacto/2026-02-10_200242/",
+        "init_obj_path": "/scratch/izar/skorokho/data/francis_library/francis_library-obj/obj/splatfacto/2026-02-10_171411/",
+        "obj_desc": "neoclassical monument",
+        "scene_desc": "park",
+        "ic_light_prompt": "a neoclassical monument",
+        "prompt_initial": "a park",
+        "prompt_desired": "a <rare_token> neoclassical monument in a park",
+        "betas_str": "1.0 3.0",
+        "betas_refine_str": "1.0 3.0",
+        "use_min_for_generation": -1,
+        "betas_str_generation": "0.8 0.9",
+        "angles_z_str": "0 10",
+        "transforms_obj": "/scratch/izar/skorokho/data/francis_bicycle/obj_scene/",
+        "fixed_place_prompt": "outdoor",
+        "dataset_root": "/scratch/izar/skorokho/data/",
+        "num_fixed_train_angles": 500,
+        "not_visible_const": 0.3,
+        "keep_scene_shadows_top": 0.05
+    }
+}

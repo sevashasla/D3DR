@@ -1,0 +1,85 @@
+Should try blenderproc?
+
+Textures for mirrors are very stupid...
+
+BATHROOM
+
+1: big and empty
+29: no celing and wall
+34: empty
+3: empty and I do not like colors...
+69: bad
+
+107: not so bad
+28: not bad
+2: not bad but quite big and a little bit empty
+5: not bad, big and many objects
+4: quite interesting
+6: okay
+
+Take: 5, 28
+
+
+BEDROOM:
+
+3: good
+77: bad carpet and walls (can change walls), empty part
+SceneFiles: okay
+27: good
+1: not bad but 27 was better
+68: good, small cozy rooms, but have to do smth with outdoor lighting
+wenfrags: not bad
+xpg: no
+dah: no
+juseragn: no
+xih: empty
+
+Take: 3, 27
+
+KITCHEN
+
+1-14: no wall
+102: okay, but need to change Textures
+13: no wall
+1: no wall
+2: cool but empty
+35: very good
+37: good but change Textures
+106: good
+16: okay, but quite empty
+76: good
+
+Take: 35, 76
+
+LIVING ROOM:
+cnn blender: no
+11: good
+33: good
+74: no
+5: empty
+66: empty
+7: quite good if take part and change shapes
+pg: not
+89: no
+yoa: no
+
+Take: 11, 33
+
+OFFICE
+14_3: good, but change the walls
+1_3: empty
+1_h: okay
+23_3: good, but change computers!
+2_crazy: okay, but empty
+2_h: good
+3_3: small
+3_h: no
+
+4_3: good
+4_h: no
+5_h: good
+66: good, but material bad
+
+Take: 14_3, 23_3
+
+

@@ -1,0 +1,116 @@
+import argparse
+
+import cv2
+import torch
+from tqdm.auto import tqdm
+
+from d3dr.diffusion.sd_utils import StableDiffusion
+
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--prompt", type=str, default="A cat")
+    parser.add_argument("--exp_desc", type=str, default="")
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--image_obj", type=str, default=None)
+    parser.add_argument("--model_name", type=str, default="stabilityai/stable-diffusion-2-1-base")
+    parser.add_argument("--sd_unet_path", type=str, default=None)
+    parser.add_argument("--lora_adapters_paths", type=str, action="append", default=[])
+    parser.add_argument("--conv_in_path", type=str, default=None)
+    parser.add_argument("--guidance_scale", type=float, default=7.5)
+    parser.add_argument("--width", type=int, default=512)
+    parser.add_argument("--height", type=int, default=512)
+
+    parser.add_argument("--num_train_iterations", type=int, default=1000)
+    parser.add_argument("--show_iter", type=int, default=100)
+    parser.add_argument("--acc_step", type=int, default=1)
+    parser.add_argument("--lr", type=float, default=1e-1)
+    parser.add_argument("--power", type=float, default=0.1)
+    parser.add_argument("--t_range_max", type=float, default=0.98)
+    parser.add_argument("--save_dir", type=str, default="./sds/")
+    parser.add_argument("--use_ratio", type=int, default=0)
+    parser.add_argument("--fp16", type=int, default=1)
+    return parser.parse_args()
+
+def main():
+    torch_device = "cuda"
+    args = get_args()
+
+    guidance = StableDiffusion(
+        device="cuda",
+        sd_version=args.model_name,
+        height=args.height,
+        width=args.width,
+        sd_unet_path=args.sd_unet_path,
+        fp16=args.fp16,
+        lora_adapters_paths=args.lora_adapters_paths,
+        conv_in_path=args.conv_in_path,
+        t_range=(0.02, args.t_range_max),
+    )
+
+    torch.manual_seed(args.seed)
+
+    sds_image = torch.randn(
+        (1, guidance.unet.config.in_channels, args.height // 8, args.width // 8),
+        device=torch_device,
+    )
+
+    sds_image = sds_image.detach().clone().requires_grad_(True)
+
+    optimizer = torch.optim.Adam([sds_image], lr=args.lr)
+    opt_scheduler = torch.optim.lr_scheduler.PolynomialLR(
+        optimizer, 
+        total_iters=args.num_train_iterations // args.acc_step, 
+        power=args.power
+    )
+
+    if args.image_obj is None:
+        rgb_obj_pred = None
+    else:
+        rgb_obj_pred = cv2.cvtColor(cv2.imread(args.image_obj), cv2.COLOR_BGR2RGB)
+        rgb_obj_pred = cv2.resize(rgb_obj_pred, (args.width, args.height))
+        rgb_obj_pred = guidance.torch2latents(guidance.np2torch(rgb_obj_pred))
+
+    real_emb = guidance.get_text_embeds(args.prompt)
+    uncond_emb = guidance.get_text_embeds("")
+    text_embs = torch.cat([uncond_emb, real_emb])
+    noise = None
+
+    args.save_dir = guidance.get_save_dir(args.save_dir)
+    print("Save dir:", args.save_dir)
+
+    ratio = None
+
+    for i in tqdm(range(args.num_train_iterations + 1)):
+        # zero_grad
+        if args.use_ratio != 0:
+            ratio = min(1, i / args.num_train_iterations)
+
+        optimizer.zero_grad()
+        loss = guidance.train_step(
+            text_embs,
+            sds_image,
+            guidance_scale=args.guidance_scale,
+            as_latent=True,
+            step_ratio=ratio,
+            noise=noise,
+            pred_rgb_obj=rgb_obj_pred,
+        )
+
+        loss.backward()
+
+        optimizer.step()
+        opt_scheduler.step()
+
+        if (i + 1) % args.show_iter == 0:
+            result_image = guidance.torch2np(guidance.latents2torch(sds_image))
+            guidance.save_images(
+                images=result_image, 
+                save_name=f"sds_image_{i + 1}.png", 
+                prompt=args.prompt,
+                save_dir=args.save_dir,
+                exp_desc=args.exp_desc,
+            )
+
+if __name__ == "__main__":
+    main()
