@@ -11,12 +11,16 @@ def get_args():
     parser.add_argument("--prompt", type=str, default="A cat")
     parser.add_argument("--exp_desc", type=str, default="")
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--model_name", type=str, default="stabilityai/stable-diffusion-2-1-base")
+    parser.add_argument(
+        "--model_name", type=str, default="Manojb/stable-diffusion-2-1-base"
+    )
     parser.add_argument("--sd_unet_path", type=str, default=None)
     parser.add_argument("--guidance_scale", type=float, default=7.5)
     parser.add_argument("--width", type=int, default=512)
     parser.add_argument("--height", type=int, default=512)
-    parser.add_argument("--lora_adapters_paths", type=str, action="append", default=[])
+    parser.add_argument(
+        "--lora_adapters_paths", type=str, action="append", default=[]
+    )
 
     parser.add_argument("--num_train_iterations", type=int, default=1000)
     parser.add_argument("--show_iter", type=int, default=100)
@@ -32,6 +36,7 @@ def get_args():
     parser.add_argument("--fp16", type=int, default=1)
     args = parser.parse_args()
     return args
+
 
 def main():
     args = get_args()
@@ -58,9 +63,7 @@ def main():
 
     optimizer = torch.optim.Adam([sds_image], lr=args.lr)
     opt_scheduler = torch.optim.lr_scheduler.PolynomialLR(
-        optimizer, 
-        total_iters=args.num_train_iterations, 
-        power=args.power
+        optimizer, total_iters=args.num_train_iterations, power=args.power
     )
 
     real_emb = guidance.get_text_embeds(args.prompt)
@@ -91,22 +94,26 @@ def main():
                     latent_0 -= args.sds_step * grad
                 sds_image_1 = guidance.latents2torch(latent_0)
                 # sds_image.data = sds_image_1.data
-            
+
             for j in range(args.sds_full_step_num):
                 # zero_grad
                 optimizer.zero_grad()
 
-                loss = (sds_image_1 - sds_image).pow(2).sum(dim=(1, 2, 3)).mean()
+                loss = (
+                    (sds_image_1 - sds_image).pow(2).sum(dim=(1, 2, 3)).mean()
+                )
                 loss.backward()
 
                 optimizer.step()
                 opt_scheduler.step()
 
-            if ((i + 1) * sum_steps) // args.show_iter > ((i) * sum_steps) // args.show_iter:
+            if ((i + 1) * sum_steps) // args.show_iter > (
+                (i) * sum_steps
+            ) // args.show_iter:
                 result_image = guidance.torch2np(sds_image)
                 guidance.save_images(
-                    images=result_image, 
-                    save_name=f"sds_image_{i + 1}.png", 
+                    images=result_image,
+                    save_name=f"sds_image_{i + 1}.png",
                     prompt=args.prompt,
                     save_dir=args.save_dir,
                     exp_desc=args.exp_desc,
@@ -124,19 +131,20 @@ def main():
                 noise=noise,
                 return_grad=False,
             ).to(torch.float32)
-            loss.backward()        
+            loss.backward()
             optimizer.step()
             opt_scheduler.step()
 
             if (i + 1) % args.show_iter == 0:
                 result_image = guidance.torch2np(sds_image)
                 guidance.save_images(
-                    images=result_image, 
-                    save_name=f"sds_image_{i + 1}.png", 
+                    images=result_image,
+                    save_name=f"sds_image_{i + 1}.png",
                     prompt=args.prompt,
                     save_dir=args.save_dir,
                     exp_desc=args.exp_desc,
                 )
+
 
 if __name__ == "__main__":
     main()

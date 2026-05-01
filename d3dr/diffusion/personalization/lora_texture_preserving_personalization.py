@@ -267,7 +267,7 @@ def generate_image_texture_preserving(
 def main():
     args = get_args()
     if args.model_name == "2.1":
-        args.model_name = "stabilityai/stable-diffusion-2-1-base"
+        args.model_name = "Manojb/stable-diffusion-2-1-base"
     elif args.model_name == "2.0":
         args.model_name = "stabilityai/stable-diffusion-2-base"
     elif args.model_name == "1.5":
