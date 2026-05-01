@@ -22,11 +22,14 @@ def get_args():
     parser.add_argument("--num_inference_steps", type=int, default=25)
     parser.add_argument("--guidance_scale", type=float, default=7.5)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--model_name", type=str, default="stabilityai/stable-diffusion-2-1-base")
+    parser.add_argument(
+        "--model_name", type=str, default="Manojb/stable-diffusion-2-1-base"
+    )
     parser.add_argument("--width", type=int, default=512)
     parser.add_argument("--height", type=int, default=512)
     parser.add_argument("--batch_size", type=int, default=16)
     return parser.parse_args()
+
 
 def main():
     args = get_args()
@@ -44,24 +47,28 @@ def main():
     )
 
     curr_image_idx = 0
-    for batch_idx in range(int(np.ceil(args.num_images / args.batch_size).item())):
+    for batch_idx in range(
+        int(np.ceil(args.num_images / args.batch_size).item())
+    ):
         if (batch_idx + 1) * args.batch_size <= args.num_images:
             curr_num_images = args.batch_size
         else:
             curr_num_images = args.num_images % args.batch_size
 
         images_generated = guidance.generate_images_by_prompts(
-            [args.prompt], 
+            [args.prompt],
             num_same=curr_num_images,
-            num_inference_steps=args.num_inference_steps, 
-            guidance_scale=args.guidance_scale, 
+            num_inference_steps=args.num_inference_steps,
+            guidance_scale=args.guidance_scale,
             seed=args.seed + batch_idx,
         )
 
         for i in range(len(images_generated)):
             cv2.imwrite(
-                os.path.join(args.output_dir, f"generated_{curr_image_idx:05}.png"),
-                cv2.cvtColor(images_generated[i], cv2.COLOR_RGB2BGR), 
+                os.path.join(
+                    args.output_dir, f"generated_{curr_image_idx:05}.png"
+                ),
+                cv2.cvtColor(images_generated[i], cv2.COLOR_RGB2BGR),
             )
             curr_image_idx += 1
 

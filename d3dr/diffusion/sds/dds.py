@@ -33,7 +33,7 @@ def get_args():
     parser.add_argument(
         "--model_name",
         type=str,
-        default="stabilityai/stable-diffusion-2-1-base",
+        default="Manojb/stable-diffusion-2-1-base",
     )
     parser.add_argument("--sd_unet_path", type=str, default=None)
     parser.add_argument(

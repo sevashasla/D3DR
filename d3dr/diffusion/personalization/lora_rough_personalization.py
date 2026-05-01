@@ -2,7 +2,6 @@
 import argparse
 import json
 import os
-from copy import deepcopy
 from pathlib import Path
 
 import torch
@@ -29,15 +28,21 @@ from utils import (
 def get_args(should_parse=True):
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--prompt", type=str, default="A <rare_token> caution wet floor sign")
-    parser.add_argument("--ic_light_prompt", type=str, default="A yellow stand sign")
+    parser.add_argument(
+        "--prompt", type=str, default="A <rare_token> caution wet floor sign"
+    )
+    parser.add_argument(
+        "--ic_light_prompt", type=str, default="A yellow stand sign"
+    )
     # dca
     # take something from https://github.com/2kpr/dreambooth-tokens
     # <doh> is okay
     parser.add_argument("--rare_token", type=str, default="<ktn>")
     parser.add_argument("--exp_desc", type=str, default="")
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--model_name", type=str, default="stabilityai/stable-diffusion-2-1-base")
+    parser.add_argument(
+        "--model_name", type=str, default="Manojb/stable-diffusion-2-1-base"
+    )
     parser.add_argument("--sd_unet_path", type=str, default=None)
     parser.add_argument("--guidance_scale", type=float, default=7.5)
     parser.add_argument("--num_inference_steps", type=int, default=25)
@@ -67,22 +72,24 @@ def get_args(should_parse=True):
     parser.add_argument("--lr_power", type=float, default=1.0)
     parser.add_argument("--mixed_precision", type=str, default="fp16")
     # parser.add_argument("--lambd_preservation_loss", type=float, default=0.0)
-    parser.add_argument("--save_dir", type=str, default="./personalization_play/")
+    parser.add_argument(
+        "--save_dir", type=str, default="./personalization_play/"
+    )
     parser.add_argument("--debug", type=int, default=1)
     parser.add_argument("--skip_used", action="store_true")
     parser.add_argument("--fixed_place_prompt", type=str, default=None)
 
-
     if should_parse:
         args = parser.parse_args()
         return args
-    
+
     return parser
+
 
 def main():
     args = get_args()
     if args.model_name == "2.1":
-        args.model_name = "stabilityai/stable-diffusion-2-1-base"
+        args.model_name = "Manojb/stable-diffusion-2-1-base"
     elif args.model_name == "2.0":
         args.model_name = "stabilityai/stable-diffusion-2-base"
     elif args.model_name == "1.5":
@@ -97,7 +104,10 @@ def main():
 
     os.makedirs(args.save_dir, exist_ok=True)
     if args.debug:
-        args.save_dir = str(Path(args.save_dir) / f"{len(list(Path(args.save_dir).glob('*'))):03}")
+        args.save_dir = str(
+            Path(args.save_dir)
+            / f"{len(list(Path(args.save_dir).glob('*'))):03}"
+        )
     print("Save dir:", args.save_dir)
     os.makedirs(args.save_dir, exist_ok=True)
     with open(Path(args.save_dir) / "my_args.json", "w") as f:
@@ -116,18 +126,25 @@ def main():
     if accelerator.mixed_precision == "fp16":
         weight_dtype = torch.float16
 
-
-    pipe = StableDiffusionPipeline.from_pretrained(args.model_name, torch_dtype=weight_dtype)
+    pipe = StableDiffusionPipeline.from_pretrained(
+        args.model_name, torch_dtype=weight_dtype
+    )
     vae = pipe.vae
     tokenizer = pipe.tokenizer
     text_encoder = pipe.text_encoder
     unet = pipe.unet
     if args.sd_unet_path is not None:
-        unet = unet.from_pretrained(args.sd_unet_path, device=torch_device, torch_dtype=weight_dtype)
-        unet = unet.to(torch_device) # idk why but I have to do it again 0_o
+        unet = unet.from_pretrained(
+            args.sd_unet_path, device=torch_device, torch_dtype=weight_dtype
+        )
+        unet = unet.to(torch_device)  # idk why but I have to do it again 0_o
         print(f"Unet from {args.sd_unet_path} loaded!")
-    _scheduler = DDIMScheduler.from_pretrained(args.model_name, subfolder="scheduler")
-    _train_scheduler = DDIMScheduler.from_pretrained(args.model_name, subfolder="scheduler")
+    _scheduler = DDIMScheduler.from_pretrained(
+        args.model_name, subfolder="scheduler"
+    )
+    _train_scheduler = DDIMScheduler.from_pretrained(
+        args.model_name, subfolder="scheduler"
+    )
 
     # freeze unet, vae and text_encoder
     unet.requires_grad_(False)
@@ -138,7 +155,14 @@ def main():
         r=args.lora_rank,
         lora_alpha=args.lora_rank,
         init_lora_weights="gaussian",
-        target_modules=["to_k", "to_q", "to_v", "to_out.0", "add_k_proj", "add_v_proj"],
+        target_modules=[
+            "to_k",
+            "to_q",
+            "to_v",
+            "to_out.0",
+            "add_k_proj",
+            "add_v_proj",
+        ],
     )
 
     unet.add_adapter(unet_lora_config)
@@ -149,13 +173,11 @@ def main():
     lora_layers = filter(lambda p: p.requires_grad, unet.parameters())
     torch.manual_seed(args.seed)
 
-    model, text_encoder, vae = accelerator.prepare(
-    unet, text_encoder, vae
-    )
+    model, text_encoder, vae = accelerator.prepare(unet, text_encoder, vae)
 
     dataset = ImageDataset(
-        image_dir=args.image_dir, 
-        width=args.width, 
+        image_dir=args.image_dir,
+        width=args.width,
         height=args.height,
         generate_n=args.generate_n,
         orig_obj_prompt=prompt_object,
@@ -167,7 +189,9 @@ def main():
         prob=args.prob,
         fixed_place_prompt=args.fixed_place_prompt,
     )
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=args.batch_size, shuffle=True
+    )
 
     optimizer = torch.optim.AdamW(
         lora_layers,
@@ -187,11 +211,15 @@ def main():
     )
 
     optimizer, dataloader, lr_scheduler = accelerator.prepare(
-    optimizer, dataloader, lr_scheduler
+        optimizer, dataloader, lr_scheduler
     )
 
-    prompt_emb = encode_text([args.prompt], text_encoder, tokenizer, device=torch_device)
-    prompt_object_emb = encode_text([prompt_object], text_encoder, tokenizer, device=torch_device)
+    prompt_emb = encode_text(
+        [args.prompt], text_encoder, tokenizer, device=torch_device
+    )
+    prompt_object_emb = encode_text(
+        [prompt_object], text_encoder, tokenizer, device=torch_device
+    )
     embs = torch.cat([prompt_object_emb, prompt_emb], axis=0)
 
     generate_image(
@@ -202,7 +230,8 @@ def main():
         save_dir=args.save_dir,
         num_inference_steps=args.num_inference_steps,
         guidance_scale=args.guidance_scale,
-        height=args.height, width=args.width,
+        height=args.height,
+        width=args.width,
         scheduler=_scheduler,
         tokenizer=tokenizer,
         text_encoder=accelerator.unwrap_model(text_encoder),
@@ -222,17 +251,28 @@ def main():
             batch_images, batch_emb_ids = next(iter_dataloader)
 
         clean_images = batch_images.to(device=torch_device, dtype=weight_dtype)
-        clean_images = torch2latents(clean_images, vae, torch_device) # get latents
+        clean_images = torch2latents(
+            clean_images, vae, torch_device
+        )  # get latents
         curr_bs = clean_images.size(0)
 
-        timesteps = torch.randint(0, _train_scheduler.config.num_train_timesteps, size=(curr_bs,), device=torch_device)
+        timesteps = torch.randint(
+            0,
+            _train_scheduler.config.num_train_timesteps,
+            size=(curr_bs,),
+            device=torch_device,
+        )
         prompt_emb_batch = embs[batch_emb_ids][:, 0, :, :]
 
         noise = torch.randn_like(clean_images)
-        noised_images = _train_scheduler.add_noise(clean_images, noise, timesteps)
+        noised_images = _train_scheduler.add_noise(
+            clean_images, noise, timesteps
+        )
 
         with accelerator.accumulate(model):
-            noise_pred = model(noised_images, timesteps, encoder_hidden_states=prompt_emb_batch).sample
+            noise_pred = model(
+                noised_images, timesteps, encoder_hidden_states=prompt_emb_batch
+            ).sample
             loss = F.mse_loss(noise_pred.float(), noise.float())
             accelerator.backward(loss)
             if accelerator.sync_gradients:
@@ -242,10 +282,14 @@ def main():
             lr_scheduler.step()
             optimizer.zero_grad()
 
-        if accelerator.is_main_process and ((i + 1) % args.show_iter == 0 or i == args.num_train_iterations - 1):
+        if accelerator.is_main_process and (
+            (i + 1) % args.show_iter == 0 or i == args.num_train_iterations - 1
+        ):
             model.eval()
-            unwrapped_unet = deepcopy(model).to(torch.float32)
-            unet_lora_state_dict = convert_state_dict_to_diffusers(get_peft_model_state_dict(unwrapped_unet))
+            unwrapped_unet = accelerator.unwrap_model(model)
+            unet_lora_state_dict = convert_state_dict_to_diffusers(
+                get_peft_model_state_dict(unwrapped_unet)
+            )
             StableDiffusionPipeline.save_lora_weights(
                 save_directory=args.save_dir,
                 unet_lora_layers=unet_lora_state_dict,
@@ -253,21 +297,23 @@ def main():
             )
 
             generate_image(
-                prompt=args.prompt, 
+                prompt=args.prompt,
                 num_same=9,
                 save_name="training.png",
                 seed=args.seed,
                 save_dir=args.save_dir,
                 num_inference_steps=args.num_inference_steps,
                 guidance_scale=args.guidance_scale,
-                height=args.height, width=args.width,
+                height=args.height,
+                width=args.width,
                 scheduler=_scheduler,
                 tokenizer=tokenizer,
-                text_encoder=text_encoder,
-                vae=vae,
+                text_encoder=accelerator.unwrap_model(text_encoder),
+                vae=accelerator.unwrap_model(vae),
                 unet=accelerator.unwrap_model(model),
                 device=accelerator.device,
             )
+
 
 if __name__ == "__main__":
     main()

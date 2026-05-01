@@ -1,24 +1,36 @@
-import os
-from d3dr.diffusion.sd_utils import StableDiffusion
 import argparse
+import os
+
+from d3dr.diffusion.sd_utils import StableDiffusion
 
 parser = argparse.ArgumentParser(help="")
 
 parser.add_argument("--sd_unet_path", type=str, default=None)
 parser.add_argument("--text_encoder_path", type=str, default=None)
-parser.add_argument("--lora_adapters_paths", type=str, action="append", default=[])
-parser.add_argument("--fp16", type=int, default=1, help="whether to inference a diffusion model in fp16")
+parser.add_argument(
+    "--lora_adapters_paths", type=str, action="append", default=[]
+)
+parser.add_argument(
+    "--fp16",
+    type=int,
+    default=1,
+    help="whether to inference a diffusion model in fp16",
+)
 parser.add_argument("--prompt", type=str, required=True, help="e.g. a cat")
 parser.add_argument("--output_name", type=str, default="simple.png")
 parser.add_argument("--exp_desc", type=str, default="")
 parser.add_argument("--num_inference_steps", type=int, default=25)
 parser.add_argument("--guidance_scale", type=float, default=7.5)
 parser.add_argument("--seed", type=int, default=0)
-parser.add_argument("--model_name", type=str, default="stabilityai/stable-diffusion-2-1-base")
+parser.add_argument(
+    "--model_name", type=str, default="Manojb/stable-diffusion-2-1-base"
+)
 parser.add_argument("--width", type=int, default=512)
 parser.add_argument("--height", type=int, default=512)
 parser.add_argument("--save_dir", type=str, default="./diffusion_play_output/")
-parser.add_argument("--num_same", type=int, default=9, help="how many images to generate")
+parser.add_argument(
+    "--num_same", type=int, default=9, help="how many images to generate"
+)
 args = parser.parse_args()
 
 torch_device = "cuda"
@@ -37,10 +49,10 @@ guidance = StableDiffusion(
 )
 
 images = guidance.generate_images_by_prompts(
-    [args.prompt], 
+    [args.prompt],
     num_same=args.num_same,
-    num_inference_steps=args.num_inference_steps, 
-    guidance_scale=args.guidance_scale, 
+    num_inference_steps=args.num_inference_steps,
+    guidance_scale=args.guidance_scale,
     seed=args.seed,
 )
 
@@ -53,4 +65,3 @@ guidance.save_images(
     exp_desc=args.exp_desc,
     save_dir=args.save_dir,
 )
-

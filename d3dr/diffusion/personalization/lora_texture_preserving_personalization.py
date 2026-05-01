@@ -1,6 +1,5 @@
 import json
 import os
-from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
@@ -194,34 +193,41 @@ def generate_image_texture_preserving(
     device: str = None,
 ):
 
-    unet_fp32 = deepcopy(unet).to(torch.float32)
-    vae_fp32 = deepcopy(vae).to(torch.float32)
-    text_encoder_fp32 = deepcopy(text_encoder).to(torch.float32)
-
     rng = torch.Generator(device="cuda")
     rng.manual_seed(seed)
+    weight_dtype = next(unet.parameters()).dtype
+    vae_dtype = next(vae.parameters()).dtype
 
-    if emb is not None:
-        text_embeddings = emb
-        if num_same > 1:
-            text_embeddings = torch.cat([text_embeddings] * num_same)
-    else:
-        prompts = [prompt] * num_same
-        text_embeddings = encode_text(
-            prompts, text_encoder_fp32, tokenizer, device
-        )
+    with torch.autocast(
+        device_type="cuda",
+        dtype=weight_dtype,
+        enabled=weight_dtype != torch.float32,
+    ):
+        if emb is not None:
+            text_embeddings = emb.to(device=device, dtype=weight_dtype)
+            if num_same > 1:
+                text_embeddings = torch.cat([text_embeddings] * num_same)
+        else:
+            prompts = [prompt] * num_same
+            text_embeddings = encode_text(
+                prompts, text_encoder, tokenizer, device
+            ).to(device=device, dtype=weight_dtype)
 
-    uncond_embeddings = encode_text(
-        [""] * num_same, text_encoder_fp32, tokenizer, device
-    )
+        uncond_embeddings = encode_text(
+            [""] * num_same, text_encoder, tokenizer, device
+        ).to(device=device, dtype=weight_dtype)
+
     text_embeddings = torch.cat([uncond_embeddings, text_embeddings])
     latents = torch.randn(
-        (num_same, unet_fp32.config.in_channels, height // 8, width // 8),
+        (num_same, unet.config.in_channels, height // 8, width // 8),
         device=device,
         generator=rng,
+        dtype=weight_dtype,
     )
 
-    obj_latents2 = torch.cat([obj_latents] * 2)
+    obj_latents2 = torch.cat([obj_latents] * 2).to(
+        device=device, dtype=weight_dtype
+    )
 
     scheduler.set_timesteps(num_inference_steps)
 
@@ -235,11 +241,17 @@ def generate_image_texture_preserving(
         latent_model_input = torch.cat(
             [latent_model_input, obj_latents2], dim=1
         )
+        latent_model_input = latent_model_input.to(dtype=weight_dtype)
 
         # predict the noise residual
-        noise_pred = unet_fp32(
-            latent_model_input, t, encoder_hidden_states=text_embeddings
-        ).sample
+        with torch.autocast(
+            device_type="cuda",
+            dtype=weight_dtype,
+            enabled=weight_dtype != torch.float32,
+        ):
+            noise_pred = unet(
+                latent_model_input, t, encoder_hidden_states=text_embeddings
+            ).sample
 
         # perform guidance
         noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
@@ -249,9 +261,17 @@ def generate_image_texture_preserving(
 
         # compute the previous noisy sample x_t -> x_t-1
         latents = scheduler.step(noise_pred, t, latents).prev_sample
+        latents = latents.to(dtype=weight_dtype)
+
+    latents_for_decode = latents.to(device=device, dtype=vae_dtype)
 
     # scale and decode the image latents with vae
-    images = latents2np(latents, vae=vae_fp32, device=device)
+    with torch.autocast(
+        device_type="cuda",
+        dtype=vae_dtype,
+        enabled=vae_dtype != torch.float32,
+    ):
+        images = latents2np(latents_for_decode, vae=vae, device=device)
 
     # save images
     if save_name is not None:
@@ -260,14 +280,13 @@ def generate_image_texture_preserving(
             images, save_name=save_name, save_dir=save_dir, prompt=prompt
         )
 
-    del unet_fp32, vae_fp32, text_encoder_fp32
     return latents, images
 
 
 def main():
     args = get_args()
     if args.model_name == "2.1":
-        args.model_name = "stabilityai/stable-diffusion-2-1-base"
+        args.model_name = "Manojb/stable-diffusion-2-1-base"
     elif args.model_name == "2.0":
         args.model_name = "stabilityai/stable-diffusion-2-base"
     elif args.model_name == "1.5":
@@ -518,7 +537,7 @@ def main():
             (i + 1) % args.show_iter == 0 or i == args.num_train_iterations - 1
         ):
             model.eval()
-            unwrapped_unet = deepcopy(model).to(torch.float32)
+            unwrapped_unet = accelerator.unwrap_model(model)
             unet_lora_state_dict = convert_state_dict_to_diffusers(
                 get_peft_model_state_dict(unwrapped_unet)
             )

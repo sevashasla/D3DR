@@ -13,9 +13,13 @@ def get_args():
     parser.add_argument("--exp_desc", type=str, default="")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--image_obj", type=str, default=None)
-    parser.add_argument("--model_name", type=str, default="stabilityai/stable-diffusion-2-1-base")
+    parser.add_argument(
+        "--model_name", type=str, default="Manojb/stable-diffusion-2-1-base"
+    )
     parser.add_argument("--sd_unet_path", type=str, default=None)
-    parser.add_argument("--lora_adapters_paths", type=str, action="append", default=[])
+    parser.add_argument(
+        "--lora_adapters_paths", type=str, action="append", default=[]
+    )
     parser.add_argument("--conv_in_path", type=str, default=None)
     parser.add_argument("--guidance_scale", type=float, default=7.5)
     parser.add_argument("--width", type=int, default=512)
@@ -31,6 +35,7 @@ def get_args():
     parser.add_argument("--use_ratio", type=int, default=0)
     parser.add_argument("--fp16", type=int, default=1)
     return parser.parse_args()
+
 
 def main():
     torch_device = "cuda"
@@ -51,7 +56,12 @@ def main():
     torch.manual_seed(args.seed)
 
     sds_image = torch.randn(
-        (1, guidance.unet.config.in_channels, args.height // 8, args.width // 8),
+        (
+            1,
+            guidance.unet.config.in_channels,
+            args.height // 8,
+            args.width // 8,
+        ),
         device=torch_device,
     )
 
@@ -59,15 +69,17 @@ def main():
 
     optimizer = torch.optim.Adam([sds_image], lr=args.lr)
     opt_scheduler = torch.optim.lr_scheduler.PolynomialLR(
-        optimizer, 
-        total_iters=args.num_train_iterations // args.acc_step, 
-        power=args.power
+        optimizer,
+        total_iters=args.num_train_iterations // args.acc_step,
+        power=args.power,
     )
 
     if args.image_obj is None:
         rgb_obj_pred = None
     else:
-        rgb_obj_pred = cv2.cvtColor(cv2.imread(args.image_obj), cv2.COLOR_BGR2RGB)
+        rgb_obj_pred = cv2.cvtColor(
+            cv2.imread(args.image_obj), cv2.COLOR_BGR2RGB
+        )
         rgb_obj_pred = cv2.resize(rgb_obj_pred, (args.width, args.height))
         rgb_obj_pred = guidance.torch2latents(guidance.np2torch(rgb_obj_pred))
 
@@ -105,12 +117,13 @@ def main():
         if (i + 1) % args.show_iter == 0:
             result_image = guidance.torch2np(guidance.latents2torch(sds_image))
             guidance.save_images(
-                images=result_image, 
-                save_name=f"sds_image_{i + 1}.png", 
+                images=result_image,
+                save_name=f"sds_image_{i + 1}.png",
                 prompt=args.prompt,
                 save_dir=args.save_dir,
                 exp_desc=args.exp_desc,
             )
+
 
 if __name__ == "__main__":
     main()
