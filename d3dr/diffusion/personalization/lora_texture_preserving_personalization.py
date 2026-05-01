@@ -196,6 +196,7 @@ def generate_image_texture_preserving(
     rng = torch.Generator(device="cuda")
     rng.manual_seed(seed)
     weight_dtype = next(unet.parameters()).dtype
+    vae_dtype = next(vae.parameters()).dtype
 
     with torch.autocast(
         device_type="cuda",
@@ -240,6 +241,7 @@ def generate_image_texture_preserving(
         latent_model_input = torch.cat(
             [latent_model_input, obj_latents2], dim=1
         )
+        latent_model_input = latent_model_input.to(dtype=weight_dtype)
 
         # predict the noise residual
         with torch.autocast(
@@ -261,13 +263,15 @@ def generate_image_texture_preserving(
         latents = scheduler.step(noise_pred, t, latents).prev_sample
         latents = latents.to(dtype=weight_dtype)
 
+    latents_for_decode = latents.to(device=device, dtype=vae_dtype)
+
     # scale and decode the image latents with vae
     with torch.autocast(
         device_type="cuda",
-        dtype=weight_dtype,
-        enabled=weight_dtype != torch.float32,
+        dtype=vae_dtype,
+        enabled=vae_dtype != torch.float32,
     ):
-        images = latents2np(latents, vae=vae, device=device)
+        images = latents2np(latents_for_decode, vae=vae, device=device)
 
     # save images
     if save_name is not None:
