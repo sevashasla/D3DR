@@ -2,7 +2,6 @@
 import argparse
 import json
 import os
-from copy import deepcopy
 from pathlib import Path
 
 import torch
@@ -287,7 +286,7 @@ def main():
             (i + 1) % args.show_iter == 0 or i == args.num_train_iterations - 1
         ):
             model.eval()
-            unwrapped_unet = deepcopy(model).to(torch.float32)
+            unwrapped_unet = accelerator.unwrap_model(model)
             unet_lora_state_dict = convert_state_dict_to_diffusers(
                 get_peft_model_state_dict(unwrapped_unet)
             )
@@ -309,8 +308,8 @@ def main():
                 width=args.width,
                 scheduler=_scheduler,
                 tokenizer=tokenizer,
-                text_encoder=text_encoder,
-                vae=vae,
+                text_encoder=accelerator.unwrap_model(text_encoder),
+                vae=accelerator.unwrap_model(vae),
                 unet=accelerator.unwrap_model(model),
                 device=accelerator.device,
             )
