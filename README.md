@@ -2,7 +2,7 @@
 
 > TL;DR: D3DR inserts a 3DGS object into a 3DGS scene and harmonizes appearance and shadows using diffusion models.
 
-## Project Page | [ArXiv](https://arxiv.org/abs/2503.06740) | [Dataset](https://zenodo.org/records/19220048)
+## [Project Page](http://norange.io/projects/diff_relight/) | [ArXiv](https://arxiv.org/abs/2503.06740) | [Dataset](https://zenodo.org/records/19220048) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/11w4TPohPkSPjNijeKm2y9Nxgl5WmnVRO?usp=sharing)
 
 <p align="center">
   <img src="./docs/method.jpg" alt="Method" width="70%">
